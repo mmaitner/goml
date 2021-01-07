@@ -1,7 +1,7 @@
 package main
 
 import (
-	goml "goml/pkg"
+	goml "goml/std"
 )
 
 func main() {
