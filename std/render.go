@@ -2,6 +2,7 @@ package goml
 
 import (
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
@@ -31,9 +32,17 @@ func Render(el []Element, params RenderParams) renderBody {
 			children += subBody + "\n"
 		}
 	}
+	children = strings.Replace(children, "\n", " ", -1)
+	re := regexp.MustCompile(`let\s[\w_]+\s=\s\(\)\s=>\s\{(.+?)\};`)
+	match := re.FindAllStringSubmatch(children, -1)
+	matched := []string{}
+	for _, e := range match {
+		matched = append(matched, e[0])
+	}
+	children = strings.Join(removeDuplicateValues(matched), " ")
 	dec := "let " + id + " = () => { const " + decId + " = document.createElement('div');\n"
 	body := []string{children, dec + "\n" + concat + "\nreturn " + decId + "}"}
-	return renderBody{body: strings.Join(body, "\n"), name: id}
+	return renderBody{body: strings.Join(removeDuplicateValues(body), "\n"), name: id}
 }
 
 func (r renderBody) Write(name ...string) {
